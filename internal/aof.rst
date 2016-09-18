@@ -7,7 +7,7 @@ Redis 分别提供了 RDB 和 AOF 两种持久化机制：
 
 - AOF 则以协议文本的方式，将所有对数据库进行过写入的命令（及其参数）记录到 AOF 文件，以此达到记录数据库状态的目的。
 
-.. image:: image/aof.png
+.. graphviz:: image/aof.dot
 
 本章首先介绍 AOF 功能的运作机制，
 了解命令是如何被保存到 AOF 文件里的，
@@ -174,7 +174,7 @@ Redis 将客户端的命令指针指向实现 :ref:`SET` 命令的 ``setCommand`
 
 以下是该过程的流程图：
 
-.. image:: image/propagate.png
+.. graphviz:: image/propagate.dot
 
 
 缓存追加
@@ -252,7 +252,7 @@ Redis 目前支持三种 AOF 保存模式，它们分别是：
 不保存
 ^^^^^^^^^^^
 
-这这种模式下，
+在这种模式下，
 每次调用 ``flushAppendOnlyFile`` 函数，
 WRITE 都会被执行，
 但 SAVE 会被略过。
@@ -298,7 +298,7 @@ SAVE 原则上每隔一秒钟就会执行一次，
 
 可以用流程图表示这四种情况：
 
-.. image:: image/flush.png
+.. graphviz:: image/flush.dot
 
 根据以上说明可以知道，
 在“每一秒钟保存一次”模式下，
@@ -573,7 +573,7 @@ AOF 重写并不需要对原有的 AOF 文件进行任何写入和读取，
 除了列表和集合之外，
 字符串、有序集、哈希表等键也可以用类似的方法来保存状态，
 并且保存这些状态所使用的命令数量，
-比起之间建立这些键的状态所使用命令的数量要大大减少。
+比起之前建立这些键的状态所使用命令的数量要大大减少。
 
 根据键的类型，
 使用适当的写入命令来重现键的当前值，
@@ -629,18 +629,22 @@ AOF 重写并不需要对原有的 AOF 文件进行任何写入和读取，
 
           # 用 HMSET key field1 value1 field2 value2 ... fieldN valueN 命令来保存哈希键
 
-          field1, value1, field2, value2, ..., fieldN, valueN = get_field_and_value_from_hash(key)
+          field1, value1, field2, value2, ..., fieldN, valueN =\
+          get_field_and_value_from_hash(key)
 
-          f.write_command("HMSET " + key + field1 + value1 + field2 + value2 + ... + fieldN + valueN)
+          f.write_command("HMSET " + key + field1 + value1 + field2 + value2 +\
+                          ... + fieldN + valueN)
 
         elif key.type == SortedSet:
 
-          # 用 ZADD key score1 member1 score2 member2 ... scoreN memberN 命令来保存有序集键
+          # 用 ZADD key score1 member1 score2 member2 ... scoreN memberN 
+          # 命令来保存有序集键
 
           score1, member1, score2, member2, ..., scoreN, memberN = \ 
           get_score_and_member_from_sorted_set(key)
 
-          f.write_command("ZADD " + key + score1 + member1 + score2 + member2 + ... + scoreN + memberN)
+          f.write_command("ZADD " + key + score1 + member1 + score2 + member2 +\
+                          ... + scoreN + memberN)
               
         else:
 
@@ -686,7 +690,7 @@ Redis 主进程在接到新的写命令之后，
 除了会将这个写命令的协议内容追加到现有的 AOF 文件之外，
 还会追加到这个缓存中：
 
-.. image:: image/propagate_when_rewrite.png
+.. graphviz:: image/propagate_when_rewrite.dot
 
 换言之，
 当子进程在执行 AOF 重写时，
@@ -753,9 +757,9 @@ AOF 重写可以由用户通过调用 :ref:`BGREWRITEAOF` 手动触发。
 
 - 记录当前 AOF 文件大小的变量 ``aof_current_size`` 。
 
-- 记录最后一次 AOF 重写之后， AOF 文件大小的变量 ``aof_rewirte_base_size`` 。
+- 记录最后一次 AOF 重写之后， AOF 文件大小的变量 ``aof_rewrite_base_size`` 。
 
-- 增长百分比变量 ``aof_rewirte_perc`` 。
+- 增长百分比变量 ``aof_rewrite_perc`` 。
 
 每次当 ``serverCron`` 函数执行时，
 它都会检查以下条件是否全部满足，

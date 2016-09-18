@@ -6,7 +6,7 @@
 ``REDIS_HASH`` （哈希表）是 :ref:`HSET` 、 :ref:`HLEN` 等命令的操作对象，
 它使用 ``REDIS_ENCODING_ZIPLIST`` 和 ``REDIS_ENCODING_HT`` 两种编码方式：
 
-.. image:: image/redis_hash.png
+.. graphviz:: image/redis_hash.dot
 
 
 字典编码的哈希表
@@ -16,13 +16,11 @@
 程序将哈希表的键（key）保存为字典的键，
 将哈希表的值（value）保存为字典的值。
 
-哈希表的键总是字符串，
-而值则可以是任意键类型：包括字符串、列表、哈希表、集合和有序集。
+哈希表所使用的字典的键和值都是字符串对象。
 
-下图展示了一个使用字典编码的哈希表，
-表中保存了三对类型不同的键值对：
+下图展示了一个包含三个键值对的哈希表：
 
-.. image:: image/dict_hash.png
+.. graphviz:: image/dict_hash.dot
 
 
 压缩列表编码的哈希表
@@ -34,9 +32,11 @@
 
 ::
 
-    +--------------------+------+------+------+------+------+------+------+------+-------------------+
-    | ZIPLIST_ENTRY_HEAD | key1 | val1 | key2 | val2 | ...  | ...  | keyN | valN | ZIPLIST_ENTRY_END |
-    +--------------------+------+------+------+------+------+------+------+------+-------------------+
+    +---------+------+------+------+------+------+------+------+------+---------+
+    | ZIPLIST |      |      |      |      |      |      |      |      | ZIPLIST |
+    | ENTRY   | key1 | val1 | key2 | val2 | ...  | ...  | keyN | valN | ENTRY   |
+    | HEAD    |      |      |      |      |      |      |      |      | END     |
+    +---------+------+------+------+------+------+------+------+------+---------+
 
 新添加的 key-value 对会被添加到压缩列表的表尾。
 
@@ -49,11 +49,11 @@
 创建空白哈希表时，
 程序默认使用 ``REDIS_ENCODING_ZIPLIST`` 编码，
 当以下任何一个条件被满足时，
-程序将编码从切换为 ``REDIS_ENCODING_HT`` ：
+程序将编码从 ``REDIS_ENCODING_ZIPLIST`` 切换为 ``REDIS_ENCODING_HT`` ：
 
 - 哈希表中某个键或某个值的长度大于 ``server.hash_max_ziplist_value`` （默认值为 ``64`` ）。
 
-- 压缩列表中的节点数量大于 ``server.hash_max_ziplist_value`` （默认值为 ``512`` ）。
+- 压缩列表中的节点数量大于 ``server.hash_max_ziplist_entries`` （默认值为 ``512`` ）。
 
 
 哈希命令的实现

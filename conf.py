@@ -25,7 +25,10 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.mathjax', 'sphinx.ext.intersphinx']
+extensions = ['sphinx.ext.mathjax', 'sphinx.ext.intersphinx', 'sphinx.ext.graphviz']
+
+graphviz_output_format = 'svg'
+graphviz_dot_args = ["-Nfontname='/usr/share/fonts/truetype/wqy/wqy-microhei.ttc'"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -91,7 +94,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'theme'
+html_theme = 'der'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -171,20 +174,27 @@ htmlhelp_basename = 'Redisdoc'
 
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+'papersize': 'a4paper',
 
 # The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+'pointsize': '11pt',
 
 # Additional stuff for the LaTeX preamble.
-#'preamble': '',
+'preamble': """
+    \usepackage{xeCJK}
+    \setCJKmainfont{WenQuanYi Zen Hei}
+    \setCJKsansfont{WenQuanYi Zen Hei}
+    \setCJKmonofont{WenQuanYi Zen Hei Mono}
+    \usepackage{tabularx}
+    \setcounter{tocdepth}{2}
+""",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Redis.tex', u'Redis 设计与实现 Documentation',
-   u'huangz1990', 'manual'),
+  ('index', 'Redis.tex', u'Redis 设计与实现',
+   u'黄健宏(huangz1990)', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
